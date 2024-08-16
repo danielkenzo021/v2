@@ -2,6 +2,7 @@ module Data where
 
 import Data.List (delete)
 import System.Random (randomRIO)
+import Test.QuickCheck (Arbitrary, arbitrary, elements)
 
 data Naipe = Ouros | Espadas | Copas | Paus deriving (Eq, Show)
 
@@ -60,7 +61,6 @@ valor (Carta num _) = case num of
     Dois   -> 9
     Tres   -> 10
 
-
 compararCartas :: Carta -> Carta -> Numero -> Ordering
 compararCartas c1 c2 manilha
     | ehManilha c1 manilha && ehManilha c2 manilha = compareNaipe c1 c2
@@ -91,8 +91,6 @@ compararCartas c1 c2 manilha
         | naipe1 == Paus   = GT
         | naipe2 == Paus   = LT
 
-
-
 data Acao = Jogar Carta | PedirTruco deriving (Eq, Show)
 
 calcularPlacar :: Acao -> Acao -> Numero -> Placar
@@ -106,3 +104,18 @@ calcularPlacar _ PedirTruco _ = (3, 0)
 
 ehFimDeJogo :: Placar -> Bool
 ehFimDeJogo (x,y) = x >= 12 || y >= 12
+
+-- Instâncias Arbitrary para QuickCheck
+
+instance Arbitrary Naipe where
+    arbitrary = elements [Ouros, Espadas, Copas, Paus]
+
+instance Arbitrary Numero where
+    arbitrary = elements [Quatro, Cinco, Seis, Sete, Dama, Valete, Rei, As, Dois, Tres]
+
+instance Arbitrary Carta where
+    arbitrary = do
+        numero <- arbitrary
+        naipe <- arbitrary
+        return $ Carta numero naipe
+
